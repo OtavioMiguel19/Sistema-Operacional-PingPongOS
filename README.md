@@ -4,3 +4,7 @@ Sistema operacional didatico desenvolvido na linguagem C como projeto da materia
 * Desenvolvido por Jose Otavio Miguel (josemiguel@alunos.utfpr.edu.br) e Matheus Vinicius Barcaro Turatti (...@alunos.utfpr.edu.br)
 
 ## Turma CSO30-S73
+
+compilar preempcao:
+$ gcc -o ppos-test ppos-core-aux.c pingpong-preempcao.c libppos_static.a
+$ ./ppos-test
