@@ -1,6 +1,10 @@
 #include "ppos.h"
 #include "ppos-core-globals.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
 // ****************************************************************************
 // Coloque aqui as suas modificações, p.ex. includes, defines variáveis,
 // estruturas e funções
@@ -33,6 +37,8 @@ void before_task_create(task_t *task)
 
 void after_task_create(task_t *task)
 {
+    task->pe = 0;
+    task->pd = 0;
     // put your customization here
 #ifdef DEBUG
     printf("\ntask_create - AFTER - [%d]", task->id);
@@ -442,10 +448,59 @@ int after_mqueue_msgs(mqueue_t *queue)
 
 task_t *scheduler()
 {
+    /**steps:
+     * 1 - buscar entre todas as atividades a com o maior numero de prioridade dinamica
+     * 2 - aumentar a prioridade dinamica de todas as atividades que nao foram selecionadas em a=1
+     * 3 - definir a prioridade dinamica da atividade selecionada de volta para a estatica
+     * 4 - retornar a selecionada
+     */
+
+
     // FCFS scheduler
     if (readyQueue != NULL)
     {
         return readyQueue;
     }
     return NULL;
+}
+
+void task_setprio(task_t *task, int prio)
+{
+    if (prio > 20) {
+        prio = 20;
+    } else if (prio < -20) {
+        prio = -20;
+    }
+    if (task->state == 'n') {
+        task->pe = prio;
+    }
+    task->pd = prio;
+    
+
+#ifdef DEBUG
+    printf("\ntask_setprio - Task id: %d", task->id);
+#endif
+    return;
+}
+
+int task_getprio(task_t *task)
+{
+    int prio;
+    int id;
+
+    if (task == NULL)
+    {
+        prio = taskExec->pd;
+        id = taskExec->id;
+    }
+    else
+    {
+        prio = task->pd;
+        id = task->id;
+    }
+    
+#ifdef DEBUG
+    printf("\ntask_setprio - Task %d with prio %d", id, prio);
+#endif
+    return prio;
 }
