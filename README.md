@@ -6,5 +6,7 @@ Sistema operacional didatico desenvolvido na linguagem C como projeto da materia
 ## Turma CSO30-S73
 
 compilar preempcao:
+
 $ gcc -o ppos-test ppos-core-aux.c pingpong-preempcao.c libppos_static.a
+
 $ ./ppos-test
