@@ -448,7 +448,7 @@ int after_mqueue_msgs(mqueue_t *queue)
 
 task_t *scheduler()
 {
-    int useTimePreeption = 0;
+    int useTimePreeption = 0; // Usado para selecionar entre o escalonador temporal e o escalonador de prioridades com envelhecimento
 
     if (useTimePreeption)
     {
@@ -471,13 +471,14 @@ task_t *scheduler()
         if (readyQueue != NULL)
         {
             // Passo 1 - buscar task com maior prioridade dinamica
-            task_t *chosenTask;
+            task_t *chosenTask; // Ponteiro apontando para a task escolhida para ser a proxima
 
-            task_t *task = readyQueue;
-            task_t *iterator = readyQueue;
-            for (int taskIndex = 0; taskIndex < countTasks; taskIndex++)
+            task_t *primeiraTask = readyQueue;
+            task_t *task = primeiraTask; // Serve de ponteiro helper para as analises
+            task_t *iterator = primeiraTask->next; // Iterador de ponteiro de task para analise
+            while (iterator != primeiraTask)
             {
-                if (iterator->pd < task->pd)
+                if (iterator->pd <= task->pd)
                 {
                     task = iterator;
                 }
@@ -486,9 +487,9 @@ task_t *scheduler()
             chosenTask = task;
 
             // Passo 2 - aumentar a pd de todos os outros
-            iterator = readyQueue;
-            for (int taskIndex = 0; taskIndex < countTasks-1; taskIndex++)
-            {
+            primeiraTask = chosenTask;
+            iterator = primeiraTask->next;
+            while (iterator != primeiraTask) {
                 if (iterator->id != chosenTask->id)
                 {
                     iterator->pd = iterator->pd - 1;
@@ -498,6 +499,11 @@ task_t *scheduler()
 
             // Passo 3 - resetar a pd da task escolhida
             chosenTask->pd = chosenTask->pe;
+
+            // Zerando ponteiros para evitar problemas
+            primeiraTask = NULL;
+            task = NULL;
+            iterator = NULL;
 
             // Passo 4 - retornar a escolhida
             return chosenTask;
