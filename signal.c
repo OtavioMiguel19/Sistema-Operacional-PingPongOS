@@ -35,7 +35,7 @@ int main (void)
    }
 
    /* laço vazio */
-   while (!sair) {
+   while (1) {
       
    };
 }

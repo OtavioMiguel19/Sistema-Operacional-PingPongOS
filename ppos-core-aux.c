@@ -22,7 +22,16 @@ struct sigaction action ;
 struct itimerval timer ;
 
 void ticker(){
-    //
+    //printf("preemption? %d\n", preemption);
+    if ( (preemption == 1) && taskExec->is_user_task){
+        taskExec->quantum--;
+        //printf("\n valor quantum %d \tid %d", taskExec->quantum, taskExec->id);
+        if (taskExec->quantum == 0){
+            //printf("\n == 0 \tid %d", taskExec->id);
+            task_yield();
+        }
+    }
+    
 }
 
 // ****************************************************************************
@@ -67,7 +76,6 @@ void before_task_create(task_t *task)
 {
     // put your customization here
     task->is_user_task = 1;
-    task->quantum = 20;
 #ifdef DEBUG
     printf("\ntask_create - BEFORE - [%d]", task->id);
 #endif
@@ -486,13 +494,14 @@ int after_mqueue_msgs(mqueue_t *queue)
 
 task_t *scheduler()
 {
-    int useTimePreeption = 0; // Usado para selecionar entre o escalonador temporal e o escalonador de prioridades com envelhecimento
+    int useTimePreeption = 1; // Usado para selecionar entre o escalonador temporal e o escalonador de prioridades com envelhecimento
 
     if (useTimePreeption)
     {
         // FCFS scheduler
         if (readyQueue != NULL)
         {
+            readyQueue->quantum = 20;
             return readyQueue;
         }
         return NULL;
@@ -544,6 +553,7 @@ task_t *scheduler()
             iterator = NULL;
 
             // Passo 4 - retornar a escolhida
+            chosenTask->quantum = 20;
             return chosenTask;
         }
         return NULL;
