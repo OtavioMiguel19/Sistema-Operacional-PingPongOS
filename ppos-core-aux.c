@@ -448,34 +448,79 @@ int after_mqueue_msgs(mqueue_t *queue)
 
 task_t *scheduler()
 {
-    /**steps:
-     * 1 - buscar entre todas as atividades a com o maior numero de prioridade dinamica
-     * 2 - aumentar a prioridade dinamica de todas as atividades que nao foram selecionadas em a=1
+    int useTimePreeption = 0;
+
+    if (useTimePreeption)
+    {
+        // FCFS scheduler
+        if (readyQueue != NULL)
+        {
+            return readyQueue;
+        }
+        return NULL;
+    }
+    else
+    {
+        /**steps:
+     * 1 - buscar entre todas as atividades a com o maior numero de prioridade dinamica (menor, melhor)
+     * 2 - aumentar a prioridade dinamica de todas as atividades que nao foram selecionadas em a=-1
      * 3 - definir a prioridade dinamica da atividade selecionada de volta para a estatica
      * 4 - retornar a selecionada
      */
 
+        if (readyQueue != NULL)
+        {
+            // Passo 1 - buscar task com maior prioridade dinamica
+            task_t *chosenTask;
 
-    // FCFS scheduler
-    if (readyQueue != NULL)
-    {
-        return readyQueue;
+            task_t *task = readyQueue;
+            task_t *iterator = readyQueue;
+            for (int taskIndex = 0; taskIndex < countTasks; taskIndex++)
+            {
+                if (iterator->pd < task->pd)
+                {
+                    task = iterator;
+                }
+                iterator = iterator->next;
+            }
+            chosenTask = task;
+
+            // Passo 2 - aumentar a pd de todos os outros
+            iterator = readyQueue;
+            for (int taskIndex = 0; taskIndex < countTasks-1; taskIndex++)
+            {
+                if (iterator->id != chosenTask->id)
+                {
+                    iterator->pd = iterator->pd - 1;
+                }
+                iterator = iterator->next;
+            }
+
+            // Passo 3 - resetar a pd da task escolhida
+            chosenTask->pd = chosenTask->pe;
+
+            // Passo 4 - retornar a escolhida
+            return chosenTask;
+        }
+        return NULL;
     }
-    return NULL;
 }
 
 void task_setprio(task_t *task, int prio)
 {
-    if (prio > 20) {
+    if (prio > 20)
+    {
         prio = 20;
-    } else if (prio < -20) {
+    }
+    else if (prio < -20)
+    {
         prio = -20;
     }
-    if (task->state == 'n') {
+    // if (task->state == PPOS_TASK_STATE_NEW)
+    // {
         task->pe = prio;
-    }
+    // }
     task->pd = prio;
-    
 
 #ifdef DEBUG
     printf("\ntask_setprio - Task id: %d", task->id);
@@ -498,7 +543,7 @@ int task_getprio(task_t *task)
         prio = task->pd;
         id = task->id;
     }
-    
+
 #ifdef DEBUG
     printf("\ntask_setprio - Task %d with prio %d", id, prio);
 #endif
