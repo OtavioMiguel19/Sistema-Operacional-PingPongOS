@@ -27,6 +27,7 @@ typedef struct task_t
    // ... (outros campos deve ser adicionados APOS esse comentario)
    int pe, pd;
    int aging;
+   int is_user_task, quantum;
    
 } task_t ;
 
