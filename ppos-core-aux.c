@@ -105,7 +105,8 @@ void after_task_exit()
     printf("\ntask_exit - AFTER- [%d]", taskExec->id);
 #endif
     printf("Task %d exit: execution time %d ms, processor time %d ms, %d activations\n", taskExec->id, (taskExec->end - taskExec->begin), taskExec->processorTime, taskExec->activations);
-    if (readyQueue == taskDisp) {
+    if (readyQueue == taskDisp)
+    {
         printf("Task %d exit: execution time %d ms, processor time %d ms, %d activations\n", taskDisp->id, (taskDisp->end - taskDisp->begin), taskDisp->processorTime, taskDisp->activations);
     }
 }
@@ -575,10 +576,7 @@ void task_setprio(task_t *task, int prio)
     {
         prio = -20;
     }
-    // if (task->state == PPOS_TASK_STATE_NEW)
-    // {
     task->pe = prio;
-    // }
     task->pd = prio;
 
 #ifdef DEBUG
@@ -589,22 +587,8 @@ void task_setprio(task_t *task, int prio)
 
 int task_getprio(task_t *task)
 {
-    int prio;
-    int id;
-
-    if (task == NULL)
-    {
-        prio = taskExec->pd;
-        id = taskExec->id;
-    }
-    else
-    {
-        prio = task->pd;
-        id = task->id;
-    }
-
 #ifdef DEBUG
-    printf("\ntask_setprio - Task %d with prio %d", id, prio);
+    printf("\ntask_setprio");
 #endif
-    return prio;
+    return task == NULL ? taskExec->pd : task->pd;
 }
