@@ -28,7 +28,7 @@ typedef struct task_t
    int pe, pd;
    int aging;
    int is_user_task, quantum;
-   
+   unsigned int begin, end, processorTime, joinedProcessor, activations;
 } task_t ;
 
 // estrutura que define um semáforo

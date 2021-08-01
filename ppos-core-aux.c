@@ -23,6 +23,8 @@ struct itimerval timer;
 
 void ticker()
 {
+    systemTime++;
+    taskExec->processorTime++;
     if (taskExec->is_user_task && !taskExec->quantum--)
     {
         task_yield();
@@ -80,6 +82,7 @@ void after_task_create(task_t *task)
 {
     task->pe = 0;
     task->pd = 0;
+    task->begin = systemTime;
     // put your customization here
 #ifdef DEBUG
     printf("\ntask_create - AFTER - [%d]", task->id);
@@ -88,6 +91,7 @@ void after_task_create(task_t *task)
 
 void before_task_exit()
 {
+    taskExec->end = systemTime;
     // put your customization here
 #ifdef DEBUG
     printf("\ntask_exit - BEFORE - [%d]", taskExec->id);
@@ -100,6 +104,10 @@ void after_task_exit()
 #ifdef DEBUG
     printf("\ntask_exit - AFTER- [%d]", taskExec->id);
 #endif
+    printf("Task %d exit: execution time %d ms, processor time %d ms, %d activations\n", taskExec->id, (taskExec->end - taskExec->begin), taskExec->processorTime, taskExec->activations);
+    if (readyQueue == taskDisp) {
+        printf("Task %d exit: execution time %d ms, processor time %d ms, %d activations\n", taskDisp->id, (taskDisp->end - taskDisp->begin), taskDisp->processorTime, taskDisp->activations);
+    }
 }
 
 void before_task_switch(task_t *task)
@@ -520,7 +528,7 @@ task_t *scheduler()
             task_t *iterator = primeiraTask->next; // Iterador de ponteiro de task para analise
             while (iterator != primeiraTask)
             {
-                if (iterator->pd <= task->pd)
+                if (iterator->pd < task->pd)
                 {
                     task = iterator;
                 }
@@ -550,6 +558,7 @@ task_t *scheduler()
 
             // Passo 4 - retornar a escolhida
             chosenTask->quantum = 20;
+            chosenTask->activations++;
             return chosenTask;
         }
         return NULL;
