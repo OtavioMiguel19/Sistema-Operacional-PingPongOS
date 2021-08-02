@@ -21,6 +21,7 @@ struct sigaction action;
 // estrutura de inicialização to timer
 struct itimerval timer;
 
+// .keepCode
 void ticker()
 {
     systemTime++;
@@ -41,9 +42,9 @@ void before_ppos_init()
 #endif
 }
 
+// .keepCode
 void after_ppos_init()
 {
-    // put your customization here
 #ifdef DEBUG
     printf("\ninit - AFTER");
 #endif
@@ -71,33 +72,33 @@ void after_ppos_init()
 
 void before_task_create(task_t *task)
 {
-    // put your customization here
-    task->is_user_task = 1;
 #ifdef DEBUG
     printf("\ntask_create - BEFORE - [%d]", task->id);
 #endif
 }
 
+// .keepCode
 void after_task_create(task_t *task)
 {
-    task->pe = 0;
-    task->pd = 0;
-    task->begin = systemTime;
-    // put your customization here
 #ifdef DEBUG
     printf("\ntask_create - AFTER - [%d]", task->id);
 #endif
+    task->pe = 0;
+    task->pd = 0;
+    task->is_user_task = task != taskDisp ? 1 : 0;
+    task->begin = systime();
 }
 
+// .keepCode
 void before_task_exit()
 {
-    taskExec->end = systemTime;
-    // put your customization here
 #ifdef DEBUG
     printf("\ntask_exit - BEFORE - [%d]", taskExec->id);
 #endif
+    taskExec->end = systime();
 }
 
+// .keepCode
 void after_task_exit()
 {
     // put your customization here
@@ -105,10 +106,6 @@ void after_task_exit()
     printf("\ntask_exit - AFTER- [%d]", taskExec->id);
 #endif
     printf("Task %d exit: execution time %d ms, processor time %d ms, %d activations\n", taskExec->id, (taskExec->end - taskExec->begin), taskExec->processorTime, taskExec->activations);
-    if (readyQueue == taskDisp)
-    {
-        printf("Task %d exit: execution time %d ms, processor time %d ms, %d activations\n", taskDisp->id, (taskDisp->end - taskDisp->begin), taskDisp->processorTime, taskDisp->activations);
-    }
 }
 
 void before_task_switch(task_t *task)
@@ -496,6 +493,7 @@ int after_mqueue_msgs(mqueue_t *queue)
     return 0;
 }
 
+// .keepCode
 task_t *scheduler()
 {
     int useTimePreeption = 0; // Usado para selecionar entre o escalonador temporal e o escalonador de prioridades com envelhecimento
@@ -566,8 +564,12 @@ task_t *scheduler()
     }
 }
 
+// .keepCode
 void task_setprio(task_t *task, int prio)
 {
+#ifdef DEBUG
+    printf("\ntask_setprio - Task id: %d", task->id);
+#endif
     if (prio > 20)
     {
         prio = 20;
@@ -578,13 +580,9 @@ void task_setprio(task_t *task, int prio)
     }
     task->pe = prio;
     task->pd = prio;
-
-#ifdef DEBUG
-    printf("\ntask_setprio - Task id: %d", task->id);
-#endif
-    return;
 }
 
+// .keepCode
 int task_getprio(task_t *task)
 {
 #ifdef DEBUG
