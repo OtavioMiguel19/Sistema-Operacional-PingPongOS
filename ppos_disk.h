@@ -27,7 +27,8 @@
 extern task_t* diskSuspendedQueue;
 
 typedef struct {
-  struct disk_request *prev, *next;
+  struct disk_request_t *prev; 
+  struct disk_request_t *next;
   int block;
   void *buffer;
   int isRead;
@@ -37,8 +38,8 @@ typedef struct {
 typedef struct {
   disk_request_t *current_request;
   disk_request_t *queue;
-  struct task_t* diskQueue;
-  struct task_t* suspendedQueue;
+  struct task_t * diskQueue;
+  struct task_t * suspendedQueue;
   semaphore_t semaphore;
   int signal;
 } disk_t;
