@@ -4,6 +4,16 @@
 
 // interface do gerente de disco rígido (block device driver)
 
+#include <signal.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <time.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include "disk.h"
+
 #ifndef __DISK_MGR__
 #define __DISK_MGR__
 
@@ -14,7 +24,19 @@
 // estrutura que representa um disco no sistema operacional
 typedef struct
 {
-  // completar com os campos necessarios
+  int status ;			// estado do disco
+  char *filename ;		// nome do arquivo que simula o disco
+  int fd ;			// descritor do arquivo que simula o disco
+  int numblocks ;		// numero de blocos do disco
+  int blocksize ;		// tamanho dos blocos em bytes
+  char *buffer ;		// buffer da proxima operacao (read/write)
+  int prev_block ;		// bloco da ultima operacao
+  int next_block ;		// bloco da proxima operacao
+  int delay_min, delay_max ;	// tempos de acesso mínimo e máximo
+  timer_t           timer ;	// timer que simula o tempo de acesso
+  struct itimerspec delay ;	// struct do timer de tempo de acesso
+  struct sigevent   sigev ;	// evento associado ao timer
+  struct sigaction  signal ;	// tratador de sinal do timer
 } disk_t ;
 
 // inicializacao do gerente de disco
