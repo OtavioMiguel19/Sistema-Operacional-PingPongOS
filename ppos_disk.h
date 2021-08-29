@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "disk.h"
+#include "ppos_data.h"
 
 #ifndef __DISK_MGR__
 #define __DISK_MGR__
@@ -22,22 +23,25 @@
 // tipicamente um disco rigido.
 
 // estrutura que representa um disco no sistema operacional
-typedef struct
-{
-  int status ;			// estado do disco
-  char *filename ;		// nome do arquivo que simula o disco
-  int fd ;			// descritor do arquivo que simula o disco
-  int numblocks ;		// numero de blocos do disco
-  int blocksize ;		// tamanho dos blocos em bytes
-  char *buffer ;		// buffer da proxima operacao (read/write)
-  int prev_block ;		// bloco da ultima operacao
-  int next_block ;		// bloco da proxima operacao
-  int delay_min, delay_max ;	// tempos de acesso mínimo e máximo
-  timer_t           timer ;	// timer que simula o tempo de acesso
-  struct itimerspec delay ;	// struct do timer de tempo de acesso
-  struct sigevent   sigev ;	// evento associado ao timer
-  struct sigaction  signal ;	// tratador de sinal do timer
-} disk_t ;
+
+extern task_t* diskSuspendedQueue;
+
+typedef struct {
+  struct disk_request *prev, *next;
+  int block;
+  void *buffer;
+  int isRead;
+  task_t *requester;
+} disk_request_t;
+
+typedef struct {
+  disk_request_t *current_request;
+  disk_request_t *queue;
+  struct task_t* diskQueue;
+  struct task_t* suspendedQueue;
+  semaphore_t semaphore;
+  int signal;
+} disk_t;
 
 // inicializacao do gerente de disco
 // retorna -1 em erro ou 0 em sucesso
