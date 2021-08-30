@@ -24,20 +24,18 @@
 
 // estrutura que representa um disco no sistema operacional
 
-extern task_t* diskSuspendedQueue;
-
 typedef struct {
-  struct disk_request_t *prev; 
-  struct disk_request_t *next;
+  struct op_disk_t *prev; 
+  struct op_disk_t *next;
   int block;
   void *buffer;
   int isRead;
   task_t *requester;
-} disk_request_t;
+} op_disk_t;
 
 typedef struct {
-  disk_request_t *current_request;
-  disk_request_t *queue;
+  op_disk_t *current_op;
+  op_disk_t *queue;
   struct task_t * diskQueue;
   struct task_t * suspendedQueue;
   semaphore_t semaphore;
