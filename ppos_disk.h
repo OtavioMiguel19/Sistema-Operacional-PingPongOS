@@ -25,22 +25,23 @@
 // estrutura que representa um disco no sistema operacional
 
 typedef struct {
-  struct op_disk_t *prev; 
-  struct op_disk_t *next;
+  task_t *requester;
   int block;
   void *buffer;
+  struct op_disk_t *next;
+  struct op_disk_t *prev; 
   int isRead;
-  task_t *requester;
 } op_disk_t;
 
 typedef struct {
-  op_disk_t *current_op;
-  op_disk_t *queue;
   struct task_t * diskQueue;
   struct task_t * suspendedQueue;
-  semaphore_t semaphore;
   int signal;
+  op_disk_t *queue;
+  op_disk_t *current_op;
+  semaphore_t semaphore;
 } disk_t;
+
 
 // inicializacao do gerente de disco
 // retorna -1 em erro ou 0 em sucesso

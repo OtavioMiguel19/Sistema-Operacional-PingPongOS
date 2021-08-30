@@ -33,8 +33,8 @@ void diskDriverBody(void *args)
             task_t *requester = (task_t *)queue_remove((queue_t **)&(disk.suspendedQueue), (queue_t *)disk.current_op->requester);
             queue_append((queue_t **)&readyQueue, (queue_t *)requester);
 
-            free(disk.current_op); //para evitar segmentationfault
             disk.signal = 0;
+            free(disk.current_op); //para evitar segmentationfault
         }
 
         // verificaçao se o disco esta em espera e se a fila nao esta vazia
